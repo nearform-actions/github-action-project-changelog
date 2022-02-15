@@ -7,7 +7,7 @@ mutation createIssue($title: String!, $body: String, $repositoryId: ID!) {
   }
 }`
 
-async function createIssue({ body, repositoryId }) {
+async function createIssue(body, repositoryId) {
   const graphqlWithAuth = graphql.defaults({
     headers: {
       authorization: `token ${process.env.GH_TOKEN}`

@@ -28,7 +28,7 @@ tap.test('Loading cards (no pagination)', async t => {
     }
   })
 
-  const result = await muduleToTest.getProjectBetaCards()
+  const result = await muduleToTest.getProjectBetaCards('fake-org', '1')()
   t.same(result, expectedResults, 'edges are returned correctly')
 })
 
@@ -73,7 +73,7 @@ tap.test('Loading cards (with pagination)', async t => {
     }
   })
 
-  const result = await muduleToTest.getProjectBetaCards()
+  const result = await muduleToTest.getProjectBetaCards('fake-org', '1')()
   t.same(
     result,
     [...expectedResults1, ...expectedResults2, ...expectedResults3],

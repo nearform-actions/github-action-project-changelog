@@ -25,14 +25,11 @@ const run = async () => {
       organization,
       Number(projectNumber)
     )()
-    const cardsFilteredByColumn = filterByColumn({
-      cards,
-      columnToFilter: column
-    })
-    const fCards = formatCards({ cards: cardsFilteredByColumn, template })
+    const cardsFilteredByColumn = filterByColumn(cards, column)
+    const fCards = formatCards(cardsFilteredByColumn, template)
     const markdown = saveMarkdown(fCards)
 
-    await createIssue({ body: markdown, repositoryId })
+    await createIssue(markdown, repositoryId)
   } catch (err) {
     core.setFailed(err.toString())
   } finally {

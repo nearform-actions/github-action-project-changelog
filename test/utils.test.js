@@ -1,7 +1,7 @@
 'use strict'
 const { test } = require('tap')
 
-const { filterByIssuesClosed, filterByCardsDone } = require('../src/filters')
+const { filterByColumn } = require('../src/filters')
 const { formatCards } = require('../src/markdown')
 const mockData = require('./mock')
 
@@ -41,7 +41,7 @@ test('should filter cards by done status', t => {
 
   const organizationCards = addCards([card])
   const cards = organizationCards.organization.projectNext.items.edges
-  const doneCards = filterByCardsDone(cards)
+  const doneCards = filterByColumn(cards, 'done')
 
   t.equal(doneCards.length, 1)
   t.equal(doneCards[0].node.fieldValues.nodes[0].value, '98236657')
@@ -66,86 +66,65 @@ test('should not filter cards by done status when the its status id is different
   }
 
   const organizationCards = addCards([card])
-  const doneCards = filterByCardsDone(
-    organizationCards.organization.projectNext.items.edges
+  const doneCards = filterByColumn(
+    organizationCards.organization.projectNext.items.edges,
+    'done'
   )
 
   t.equal(doneCards.length, 0)
 })
 
-test('should filter by issues closed', t => {
+test('should filter by all columns when selected all', t => {
   t.plan(1)
-  const organizationCards = addCards([
-    {
-      node: {
-        content: {
-          closed: true
-        }
-      }
-    },
-    {
-      node: {
-        content: {
-          state: 'CLOSED'
-        }
-      }
-    },
-    {
-      node: {
-        content: {
-          state: 'OPENED'
-        }
+  const card = {
+    node: {
+      content: null,
+      fieldValues: {
+        nodes: [
+          {
+            value: '50274f36', // internal
+            projectField: {
+              name: 'Status'
+            }
+          }
+        ]
       }
     }
-  ])
-  const cards = organizationCards.organization.projectNext.items.edges
-  const cardsWithIssuesClosed = filterByIssuesClosed(cards)
+  }
 
-  t.equal(cardsWithIssuesClosed.length, 2)
-})
-
-test('should filter by merged pull requests', t => {
-  t.plan(1)
-  const organizationCards = addCards([
-    {
-      node: {
-        content: {
-          state: 'MERGED'
-        }
+  const card2 = {
+    node: {
+      content: null,
+      fieldValues: {
+        nodes: [
+          {
+            value: 'f75ad846', //to do
+            projectField: {
+              name: 'Status'
+            }
+          }
+        ]
       }
     }
-  ])
-  const cards = organizationCards.organization.projectNext.items.edges
-  const cardsWithPRClosed = filterByIssuesClosed(cards)
+  }
 
-  t.equal(cardsWithPRClosed.length, 1)
+  const organizationCards = addCards([card, card2])
+  const cards = filterByColumn(
+    organizationCards.organization.projectNext.items.edges,
+    'all'
+  )
+
+  t.equal(cards.length, 2)
 })
 
 test('should return empty cards when there is no cards to filter', t => {
-  t.plan(2)
-  const cardsWithPRClosed = filterByIssuesClosed()
-  const cardsDone = filterByCardsDone()
-
-  t.equal(cardsDone.length, 0)
-  t.equal(cardsWithPRClosed.length, 0)
-})
-
-test("should not filter cards by issues closed when 'content' doesn't exists ", t => {
   t.plan(1)
-  const organizationCards = addCards([
-    {
-      node: {
-        content: null
-      }
-    }
-  ])
-  const cards = organizationCards.organization.projectNext.items.edges
-  const cardsWithPRClosed = filterByIssuesClosed(cards)
+  const cards = filterByColumn()
 
-  t.equal(cardsWithPRClosed.length, 0)
+  t.equal(cards.length, 0)
 })
 
-test('should format cards in markdown style', t => {
+test('should format cards in markdown style using handlebar template', t => {
   t.plan(1)
 
   const organizationCards = addCards([
@@ -206,14 +185,15 @@ test('should format cards in markdown style', t => {
   ])
 
   const fCards = formatCards(
-    organizationCards.organization.projectNext.items.edges
+    organizationCards.organization.projectNext.items.edges,
+    '{{title}} {{url}}'
   )
 
   t.match(fCards, [
-    'fake-title  ',
-    'fake-title-1 by @fake-login in [#5](fake-url-1)',
-    'fake-title-2 by @fake-login-2 in [#7](fake-url-2)',
-    'fake-title-3 by @fake-login-3 in [#15](fake-url-3)'
+    'fake-title ',
+    'fake-title-1 fake-url-1',
+    'fake-title-2 fake-url-2',
+    'fake-title-3 fake-url-3'
   ])
 })
 
@@ -227,13 +207,10 @@ test('should return empty when there is no cards to format', t => {
 
 test('should call json2md with cards formated in markdown', t => {
   t.plan(2)
-  const cardsDoneMarkDown = [
+  const cards = [
     '**fake-title** [draft] ',
     '**[fake-title-1](fake-url-1)** [draft] updated at *1/1/2022, 12:00:00*',
     '**[fake-title-2](fake-url-2)** [merged] updated at *1/1/2022, 12:00:00*'
-  ]
-  const cardsDoneIssuesNotClosedMarkdown = [
-    '**[fake-title-3](fake-url-3)** [merged] updated at *1/1/2022, 12:00:00*'
   ]
 
   const myModule = t.mock('../src/markdown', {
@@ -241,13 +218,7 @@ test('should call json2md with cards formated in markdown', t => {
       t.match(input, [
         { h1: "What's Changed" },
         {
-          ul: cardsDoneMarkDown
-        },
-        {
-          h2: 'Cards done but issues not closed'
-        },
-        {
-          ul: cardsDoneIssuesNotClosedMarkdown
+          ul: cards
         }
       ])
     },
@@ -258,10 +229,7 @@ test('should call json2md with cards formated in markdown', t => {
     }
   })
 
-  myModule.saveMarkdown({
-    cardsDone: cardsDoneMarkDown,
-    cardsDoneIssuesNotClosed: cardsDoneIssuesNotClosedMarkdown
-  })
+  myModule.saveMarkdown(cards)
 })
 
 test("should create folder to save changelogs if it doesn't exist", t => {
@@ -276,5 +244,5 @@ test("should create folder to save changelogs if it doesn't exist", t => {
     }
   })
 
-  myModule.saveMarkdown({ cardsDone: cardsDoneMarkDown })
+  myModule.saveMarkdown(cardsDoneMarkDown)
 })

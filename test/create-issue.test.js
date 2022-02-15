@@ -10,8 +10,8 @@ test('Creating issues', async ({ equal, plan, mock }) => {
       graphql: {
         defaults: () => {
           return async (_, params) => {
-            equal(params.repositoryId, 'R_kgDOGyDrvw')
             equal(params.body, markdown)
+            equal(params.repositoryId, 'fake-repository-id')
             return {
               issue: {
                 id: 'fale-issue-id'
@@ -23,5 +23,5 @@ test('Creating issues', async ({ equal, plan, mock }) => {
     }
   })
 
-  await muduleToTest.createIssue(markdown)
+  await muduleToTest.createIssue(markdown, 'fake-repository-id')
 })

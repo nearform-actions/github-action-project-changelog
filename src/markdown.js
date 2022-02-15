@@ -43,7 +43,7 @@ const getCardAssignees = node => {
   return issueAssignee
 }
 
-const formatCards = ({ cards = [], template }) => {
+const formatCards = (cards = [], template = '') => {
   const hTemplate = Handlebars.compile(template)
 
   return cards.map(({ node }) =>
