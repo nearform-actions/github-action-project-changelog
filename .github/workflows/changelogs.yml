@@ -1,19 +1,6 @@
 name: changelog
 on:
   workflow_dispatch:
-    inputs:
-      column:
-        description: “Project column”
-        required: true
-        type: "choice"
-        options:
-          - all
-          - done
-          - to do
-          - internal
-          - priority
-          - in progress
-          - on hold
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -33,7 +20,7 @@ jobs:
         uses: ./
         id: changelog
         with:
-          column: ${{ github.event.inputs.column }}
+          column-id: 98236657
           organization: nearform
           project-beta-number: 6
         env:

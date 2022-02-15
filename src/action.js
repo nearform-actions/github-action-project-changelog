@@ -11,7 +11,7 @@ const run = async () => {
   core.info(`*** ACTION RUN - START ***`)
 
   try {
-    const column = core.getInput('column')
+    const column = core.getInput('column-id')
     const template = core.getInput('template')
     const organization = core.getInput('organization')
     const projectNumber = core.getInput('project-beta-number')

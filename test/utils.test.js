@@ -21,7 +21,7 @@ const addCards = (cards = []) => {
   }
 }
 
-test('should filter cards by done status', t => {
+test('should filter cards by columnId', t => {
   t.plan(2)
   const card = {
     node: {
@@ -29,7 +29,7 @@ test('should filter cards by done status', t => {
       fieldValues: {
         nodes: [
           {
-            value: '98236657', // done status id
+            value: 'fake-column-id',
             projectField: {
               name: 'Status'
             }
@@ -41,13 +41,13 @@ test('should filter cards by done status', t => {
 
   const organizationCards = addCards([card])
   const cards = organizationCards.organization.projectNext.items.edges
-  const doneCards = filterByColumn(cards, 'done')
+  const fCards = filterByColumn(cards, 'fake-column-id')
 
-  t.equal(doneCards.length, 1)
-  t.equal(doneCards[0].node.fieldValues.nodes[0].value, '98236657')
+  t.equal(fCards.length, 1)
+  t.equal(fCards[0].node.fieldValues.nodes[0].value, 'fake-column-id')
 })
 
-test('should not filter cards by done status when the its status id is different', t => {
+test('should not filter cards when the its column id is different', t => {
   t.plan(1)
   const card = {
     node: {
@@ -68,53 +68,10 @@ test('should not filter cards by done status when the its status id is different
   const organizationCards = addCards([card])
   const doneCards = filterByColumn(
     organizationCards.organization.projectNext.items.edges,
-    'done'
+    'fake-id'
   )
 
   t.equal(doneCards.length, 0)
-})
-
-test('should filter by all columns when selected all', t => {
-  t.plan(1)
-  const card = {
-    node: {
-      content: null,
-      fieldValues: {
-        nodes: [
-          {
-            value: '50274f36', // internal
-            projectField: {
-              name: 'Status'
-            }
-          }
-        ]
-      }
-    }
-  }
-
-  const card2 = {
-    node: {
-      content: null,
-      fieldValues: {
-        nodes: [
-          {
-            value: 'f75ad846', //to do
-            projectField: {
-              name: 'Status'
-            }
-          }
-        ]
-      }
-    }
-  }
-
-  const organizationCards = addCards([card, card2])
-  const cards = filterByColumn(
-    organizationCards.organization.projectNext.items.edges,
-    'all'
-  )
-
-  t.equal(cards.length, 2)
 })
 
 test('should return empty cards when there is no cards to filter', t => {
