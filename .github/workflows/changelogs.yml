@@ -1,0 +1,40 @@
+name: changelog
+on:
+  workflow_dispatch:
+    inputs:
+      column:
+        description: “Project column”
+        required: true
+        type: "choice"
+        options:
+          - all
+          - done
+          - to do
+          - internal
+          - priority
+          - in progress
+          - on hold
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - name: Generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.GH_APP_ID }}
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+      - name: Creating an issue action
+        uses: ./
+        id: changelog
+        with:
+          column: ${{ github.event.inputs.column }}
+          organization: nearform
+          project-beta-number: 6
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}

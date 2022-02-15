@@ -1,0 +1,28 @@
+
+name: 'Check linked issues'
+
+description: 'Check if pull requests have their corresponding issues.'
+
+branding:
+  icon: "check-square"
+  color: "green"
+
+inputs:
+  template:
+    description: Handlebars template to generate markdown
+    required: false
+    default: "{{title}} {{#if assignees }} by {{assignees}} {{/if}} {{#if number}} in [#{{number}}]({{url}}) {{/if}}"
+  column:
+    description: Column to collect the changelogs
+    required: true
+    default: "done"
+  project-beta-number:
+    description: Project beta number
+    required: true
+  organization:
+    description: Organization name
+    required: true
+
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
