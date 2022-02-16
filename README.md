@@ -110,7 +110,7 @@ jobs:
     steps:
       ...
       - name: Creating an issue action
-        uses: ./
+        uses: nearform/github-action-project-changelog@v1
         id: changelog
         with:
           organization: # organization name
