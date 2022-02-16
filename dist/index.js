@@ -17210,43 +17210,47 @@ function wrappy (fn, cb) {
 /***/ }),
 
 /***/ 8874:
-/***/ ((module, __webpack_exports__, __nccwpck_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
-__nccwpck_require__.r(__webpack_exports__);
-/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(1252);
-/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_github__WEBPACK_IMPORTED_MODULE_0__);
-/* module decorator */ module = __nccwpck_require__.hmd(module);
 
 const core = __nccwpck_require__(260)
-;
+const github = __nccwpck_require__(1252)
 
 const { createIssue } = __nccwpck_require__(9478)
-const { filterByColumn } = __nccwpck_require__(8388)
-const { formatCards, saveMarkdown } = __nccwpck_require__(6755)
-const { getProjectBetaCards } = __nccwpck_require__(2587)
+const { filterByColumnId, findColumnIdByName } = __nccwpck_require__(8388)
+const { formatCards, generateMarkdown } = __nccwpck_require__(6755)
+const { getProjectBetaCards, getProjectSettings } = __nccwpck_require__(2587)
 
 const run = async () => {
   core.info(`*** ACTION RUN - START ***`)
 
   try {
-    const column = core.getInput('column')
+    const columnName = core.getInput('column')
     const template = core.getInput('template')
     const organization = core.getInput('organization')
-    const projectNumber = core.getInput('project-beta-number')
+    const projectNumber = Number(core.getInput('project-beta-number'))
 
-    const { payload } = _actions_github__WEBPACK_IMPORTED_MODULE_0__.context
     const {
-      repository: { node_id: repositoryId }
-    } = payload
+      payload: {
+        repository: { node_id: repositoryId }
+      }
+    } = github.context
 
-    const cards = await getProjectBetaCards(
+    const cards = await getProjectBetaCards(organization, projectNumber)()
+    const projectSettings = await getProjectSettings(
       organization,
-      Number(projectNumber)
-    )()
-    const cardsFilteredByColumn = filterByColumn(cards, column)
+      projectNumber
+    )
+    const columnId = findColumnIdByName(columnName, projectSettings)
+
+    if (!columnId) {
+      throw new Error('columnId not found.')
+    }
+
+    const cardsFilteredByColumn = filterByColumnId(cards, columnId)
     const fCards = formatCards(cardsFilteredByColumn, template)
-    const markdown = saveMarkdown(fCards)
+    const markdown = generateMarkdown(fCards)
 
     await createIssue(markdown, repositoryId)
   } catch (err) {
@@ -17260,28 +17264,6 @@ const run = async () => {
 
 module.exports = {
   run
-}
-
-
-/***/ }),
-
-/***/ 9966:
-/***/ ((module) => {
-
-module.exports = {
-  columnsId: {
-    done: '98236657',
-    'to do': 'f75ad846',
-    internal: '50274f36',
-    priority: 'c304b671',
-    'in progress': '47fc9ee4',
-    'on hold': 'cddd71f8',
-    support: 'f71ac494',
-    content: 'd636b4c2',
-    devOps: '6ebfacad',
-    ideas: 'b5d25b4f',
-    'academy projects': '1af87099'
-  }
 }
 
 
@@ -17321,24 +17303,34 @@ module.exports = {
 /***/ }),
 
 /***/ 8388:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ ((module) => {
 
-const { columnsId } = __nccwpck_require__(9966)
-
-const filterByColumn = (cards = [], columnToFilter = '') => {
-  let cFilter = columnsId[columnToFilter]
-    ? [columnsId[columnToFilter]]
-    : Object.keys(columnsId).map(key => columnsId[key])
-
+const filterByColumnId = (cards = [], columnId = '') => {
   const cardsFiltered = cards.filter(({ node }) =>
-    node.fieldValues.nodes.some(item => cFilter.some(c => c === item.value))
+    node.fieldValues.nodes.some(item => columnId === item.value)
   )
 
   return cardsFiltered
 }
 
+const findColumnIdByName = (columnName, projectSettings) => {
+  const statusSetting = projectSettings?.find(({ name }) =>
+    /status/i.test(name)
+  )
+
+  if (statusSetting) {
+    const column = JSON.parse(statusSetting?.settings)?.options?.find(
+      ({ name }) =>
+        columnName?.trim()?.toLowerCase()?.includes(name?.trim().toLowerCase())
+    )
+
+    return column?.id
+  }
+}
+
 module.exports = {
-  filterByColumn
+  filterByColumnId,
+  findColumnIdByName
 }
 
 
@@ -17347,11 +17339,10 @@ module.exports = {
 /***/ 6755:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const fs = __nccwpck_require__(7147)
 const json2md = __nccwpck_require__(4439)
 const Handlebars = __nccwpck_require__(9291)
 
-const saveMarkdown = cards => {
+const generateMarkdown = cards => {
   const markdownOptions = [
     { h1: "What's Changed" },
     {
@@ -17360,19 +17351,6 @@ const saveMarkdown = cards => {
   ]
 
   const markdown = json2md(markdownOptions)
-
-  const dir = process.env.CHANGELOG_FOLDER || __nccwpck_require__.ab + "changelog_tests"
-
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-
-  const d = new Date()
-  const getFileName = `${dir}/${
-    d.getMonth() + 1
-  }_${d.getDate()}_${d.getFullYear()}.md`
-
-  fs.writeFileSync(getFileName, markdown)
 
   return markdown
 }
@@ -17406,7 +17384,7 @@ const formatCards = (cards = [], template = '') => {
 
 module.exports = {
   formatCards,
-  saveMarkdown
+  generateMarkdown
 }
 
 
@@ -17508,8 +17486,44 @@ const getProjectBetaCards =
     return results
   }
 
+const getProjectSettings = async (organization, projectNumber) => {
+  const query = `
+  query projectSettings($organization: String!, $projectNumber: Int!){ 
+      organization(login: $organization) {
+        projectNext(number: $projectNumber) {
+          fields(first: 100) {
+            nodes {
+              name
+              settings
+            }
+          }
+        }
+      }
+    }`
+
+  const graphqlWithAuth = graphql.defaults({
+    headers: {
+      authorization: `token ${process.env.GH_TOKEN}`
+    }
+  })
+
+  const {
+    organization: {
+      projectNext: {
+        fields: { nodes }
+      }
+    }
+  } = await graphqlWithAuth(query, {
+    organization,
+    projectNumber
+  })
+
+  return nodes
+}
+
 module.exports = {
-  getProjectBetaCards
+  getProjectBetaCards,
+  getProjectSettings
 }
 
 
@@ -17657,8 +17671,8 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			id: moduleId,
-/******/ 			loaded: false,
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
 /******/ 	
@@ -17671,69 +17685,11 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
 /******/ 		}
 /******/ 	
-/******/ 		// Flag the module as loaded
-/******/ 		module.loaded = true;
-/******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/compat get default export */
-/******/ 	(() => {
-/******/ 		// getDefaultExport function for compatibility with non-harmony modules
-/******/ 		__nccwpck_require__.n = (module) => {
-/******/ 			var getter = module && module.__esModule ?
-/******/ 				() => (module['default']) :
-/******/ 				() => (module);
-/******/ 			__nccwpck_require__.d(getter, { a: getter });
-/******/ 			return getter;
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__nccwpck_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
-/******/ 			}
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/harmony module decorator */
-/******/ 	(() => {
-/******/ 		__nccwpck_require__.hmd = (module) => {
-/******/ 			module = Object.create(module);
-/******/ 			if (!module.children) module.children = [];
-/******/ 			Object.defineProperty(module, 'exports', {
-/******/ 				enumerable: true,
-/******/ 				set: () => {
-/******/ 					throw new Error('ES Modules may not assign module.exports or exports.*, Use ESM export syntax, instead: ' + module.id);
-/******/ 				}
-/******/ 			});
-/******/ 			return module;
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__nccwpck_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
