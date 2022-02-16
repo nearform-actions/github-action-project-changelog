@@ -54,9 +54,9 @@ jobs:
         uses: nearform/github-action-project-changelog@v1
         id: changelog
         with:
-          column: #project beta column name
-          organization: # organization name
-          project-beta-number: #project beta number
+          columns: #todo, in progress
+          organization: #fake organization
+          project-beta-number: #1
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 ```
@@ -84,9 +84,9 @@ jobs:
         uses: nearform/github-action-project-changelog@v1
         id: changelog
         with:
-          column: #project beta column name
-          organization: # organization name
-          project-beta-number: #project beta number
+          columns: #todo, in progress
+          organization: #fake organization
+          project-beta-number: #1
           template: "{{title}} {{#if assignees }} by {{assignees}} {{/if}} {{#if number}} in [#{{number}}]({{url}}) {{/if}}" 
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
@@ -100,9 +100,9 @@ name: changelog
 on:
   workflow_dispatch:
     inputs:
-      column:
+      columns:
         type: string
-        description: 'Project beta column'
+        description: 'Project beta columns'
         required: true
 jobs:
   run:
@@ -115,7 +115,7 @@ jobs:
         with:
           organization: # organization name
           project-beta-number: #project beta number
-          column: ${{ github.event.inputs.column }}
+          columns: ${{ github.event.inputs.columns }}
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 ```

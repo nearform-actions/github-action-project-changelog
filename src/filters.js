@@ -1,27 +1,32 @@
-const filterByColumnId = (cards = [], columnId = '') => {
+const filterByColumnIds = (cards = [], columnIds = []) => {
+  console.log({
+    columnIds
+  })
   const cardsFiltered = cards.filter(({ node }) =>
-    node.fieldValues.nodes.some(item => columnId === item.value)
+    node.fieldValues.nodes.some(item => columnIds?.some(c => c === item.value))
   )
 
   return cardsFiltered
 }
 
-const findColumnIdByName = (columnName, projectSettings) => {
+const findColumnIdByName = (columnNames, projectSettings) => {
   const statusSetting = projectSettings?.find(({ name }) =>
     /status/i.test(name)
   )
 
   if (statusSetting) {
-    const column = JSON.parse(statusSetting?.settings)?.options?.find(
+    const columns = columnNames?.split(',')
+
+    const columnSettings = JSON.parse(statusSetting?.settings)?.options?.filter(
       ({ name }) =>
-        columnName?.trim()?.toLowerCase()?.includes(name?.trim().toLowerCase())
+        columns?.find(c => c?.trim()?.includes(name?.trim()?.toLowerCase()))
     )
 
-    return column?.id
+    return columnSettings?.map(c => c?.id)
   }
 }
 
 module.exports = {
-  filterByColumnId,
+  filterByColumnIds,
   findColumnIdByName
 }

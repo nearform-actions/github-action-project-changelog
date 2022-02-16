@@ -8,8 +8,8 @@ branding:
   color: "green"
 
 inputs:
-  column:
-    description: Column name to collect the changelogs
+  columns:
+    description: Project Column names separated by comma
     required: true
   project-beta-number:
     description: Project beta number

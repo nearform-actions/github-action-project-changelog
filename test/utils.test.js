@@ -1,7 +1,7 @@
 'use strict'
 const { test } = require('tap')
 
-const { filterByColumnId, findColumnIdByName } = require('../src/filters')
+const { filterByColumnIds, findColumnIdByName } = require('../src/filters')
 const { formatCards } = require('../src/markdown')
 const mockData = require('./mock')
 
@@ -41,7 +41,7 @@ test('should filter cards by columnId', t => {
 
   const organizationCards = addCards([card])
   const cards = organizationCards.organization.projectNext.items.edges
-  const fCards = filterByColumnId(cards, 'fake-column-id')
+  const fCards = filterByColumnIds(cards, ['fake-column-id'])
 
   t.equal(fCards.length, 1)
   t.equal(fCards[0].node.fieldValues.nodes[0].value, 'fake-column-id')
@@ -66,9 +66,9 @@ test('should not filter cards when the its column id is different', t => {
   }
 
   const organizationCards = addCards([card])
-  const doneCards = filterByColumnId(
+  const doneCards = filterByColumnIds(
     organizationCards.organization.projectNext.items.edges,
-    'fake-id'
+    ['fake-id']
   )
 
   t.equal(doneCards.length, 0)
@@ -76,7 +76,7 @@ test('should not filter cards when the its column id is different', t => {
 
 test('should return empty cards when there is no cards to filter', t => {
   t.plan(1)
-  const cards = filterByColumnId()
+  const cards = filterByColumnIds()
 
   t.equal(cards.length, 0)
 })
@@ -196,7 +196,7 @@ test('should find column id given project settings and column name', t => {
 
   const columnId = findColumnIdByName('fake-name', projectSettings)
 
-  t.equal(columnId, 'fake-id')
+  t.match(columnId, ['fake-id'])
 })
 
 test('should return undefined when column id is not found', t => {
