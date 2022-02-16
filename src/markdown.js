@@ -1,8 +1,7 @@
-const fs = require('fs')
 const json2md = require('json2md')
 const Handlebars = require('handlebars')
 
-const saveMarkdown = cards => {
+const generateMarkdown = cards => {
   const markdownOptions = [
     { h1: "What's Changed" },
     {
@@ -11,19 +10,6 @@ const saveMarkdown = cards => {
   ]
 
   const markdown = json2md(markdownOptions)
-
-  const dir = process.env.CHANGELOG_FOLDER || `${__dirname}/../changelog_tests`
-
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-
-  const d = new Date()
-  const getFileName = `${dir}/${
-    d.getMonth() + 1
-  }_${d.getDate()}_${d.getFullYear()}.md`
-
-  fs.writeFileSync(getFileName, markdown)
 
   return markdown
 }
@@ -57,5 +43,5 @@ const formatCards = (cards = [], template = '') => {
 
 module.exports = {
   formatCards,
-  saveMarkdown
+  generateMarkdown
 }

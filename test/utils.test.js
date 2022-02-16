@@ -1,7 +1,7 @@
 'use strict'
 const { test } = require('tap')
 
-const { filterByColumn } = require('../src/filters')
+const { filterByColumnId, findColumnIdByName } = require('../src/filters')
 const { formatCards } = require('../src/markdown')
 const mockData = require('./mock')
 
@@ -41,7 +41,7 @@ test('should filter cards by columnId', t => {
 
   const organizationCards = addCards([card])
   const cards = organizationCards.organization.projectNext.items.edges
-  const fCards = filterByColumn(cards, 'fake-column-id')
+  const fCards = filterByColumnId(cards, 'fake-column-id')
 
   t.equal(fCards.length, 1)
   t.equal(fCards[0].node.fieldValues.nodes[0].value, 'fake-column-id')
@@ -66,7 +66,7 @@ test('should not filter cards when the its column id is different', t => {
   }
 
   const organizationCards = addCards([card])
-  const doneCards = filterByColumn(
+  const doneCards = filterByColumnId(
     organizationCards.organization.projectNext.items.edges,
     'fake-id'
   )
@@ -76,7 +76,7 @@ test('should not filter cards when the its column id is different', t => {
 
 test('should return empty cards when there is no cards to filter', t => {
   t.plan(1)
-  const cards = filterByColumn()
+  const cards = filterByColumnId()
 
   t.equal(cards.length, 0)
 })
@@ -163,7 +163,7 @@ test('should return empty when there is no cards to format', t => {
 })
 
 test('should call json2md with cards formated in markdown', t => {
-  t.plan(2)
+  t.plan(1)
   const cards = [
     '**fake-title** [draft] ',
     '**[fake-title-1](fake-url-1)** [draft] updated at *1/1/2022, 12:00:00*',
@@ -178,28 +178,38 @@ test('should call json2md with cards formated in markdown', t => {
           ul: cards
         }
       ])
-    },
-    fs: {
-      existsSync: () => true,
-      mkdirSync: () => t.fail(),
-      writeFileSync: () => t.pass()
     }
   })
 
-  myModule.saveMarkdown(cards)
+  myModule.generateMarkdown(cards)
 })
 
-test("should create folder to save changelogs if it doesn't exist", t => {
-  t.plan(2)
-  const cardsDoneMarkDown = ['**fake-title** [draft] ']
+test('should find column id given project settings and column name', t => {
+  t.plan(1)
 
-  const myModule = t.mock('../src/markdown', {
-    fs: {
-      existsSync: () => false,
-      mkdirSync: () => t.pass(),
-      writeFileSync: () => t.pass()
+  const projectSettings = [
+    {
+      name: 'Status',
+      settings: '{"options": [{"id": "fake-id", "name": "fake-name"}]}'
     }
-  })
+  ]
 
-  myModule.saveMarkdown(cardsDoneMarkDown)
+  const columnId = findColumnIdByName('fake-name', projectSettings)
+
+  t.equal(columnId, 'fake-id')
+})
+
+test('should return undefined when column id is not found', t => {
+  t.plan(1)
+
+  const projectSettings = [
+    {
+      name: 'fake-settings-name',
+      settings: '{"options": []}'
+    }
+  ]
+
+  const columnId = findColumnIdByName('fake-column-name', projectSettings)
+
+  t.equal(columnId, undefined)
 })

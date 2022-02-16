@@ -91,6 +91,42 @@ const getProjectBetaCards =
     return results
   }
 
+const getProjectSettings = async (organization, projectNumber) => {
+  const query = `
+  query projectSettings($organization: String!, $projectNumber: Int!){ 
+      organization(login: $organization) {
+        projectNext(number: $projectNumber) {
+          fields(first: 100) {
+            nodes {
+              name
+              settings
+            }
+          }
+        }
+      }
+    }`
+
+  const graphqlWithAuth = graphql.defaults({
+    headers: {
+      authorization: `token ${process.env.GH_TOKEN}`
+    }
+  })
+
+  const {
+    organization: {
+      projectNext: {
+        fields: { nodes }
+      }
+    }
+  } = await graphqlWithAuth(query, {
+    organization,
+    projectNumber
+  })
+
+  return nodes
+}
+
 module.exports = {
-  getProjectBetaCards
+  getProjectBetaCards,
+  getProjectSettings
 }

@@ -19,7 +19,7 @@ jobs:
         uses: ./
         id: changelog
         with:
-          column-id: 98236657
+          column: done
           organization: nearform
           project-beta-number: 6
         env:

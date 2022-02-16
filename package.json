@@ -1,7 +1,7 @@
 {
-  "name": "bench-changelog",
+  "name": "github-action-project-changelog",
   "version": "1.0.0",
-  "description": "get cards done from bench board",
+  "description": "create an issue containing a list of project cards according with the project column name specified.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

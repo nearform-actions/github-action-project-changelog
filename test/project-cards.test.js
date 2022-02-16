@@ -80,3 +80,42 @@ tap.test('Loading cards (with pagination)', async t => {
     '3 calls to the api return the correct edges'
   )
 })
+
+tap.test('should get project settings', async t => {
+  t.plan(2)
+  const muduleToTest = t.mock('../src/project-cards', {
+    '@octokit/graphql': {
+      graphql: {
+        defaults: () => {
+          return async () => {
+            t.pass()
+            const results = {
+              organization: {
+                projectNext: {
+                  fields: {
+                    nodes: [
+                      {
+                        name: 'fake-setting-name',
+                        settings:
+                          '{options: [{id: "fake-id", name: "fake-option-name"}]}'
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+            return results
+          }
+        }
+      }
+    }
+  })
+
+  const result = await muduleToTest.getProjectSettings('fake-org', '1')
+  t.same(result, [
+    {
+      name: 'fake-setting-name',
+      settings: '{options: [{id: "fake-id", name: "fake-option-name"}]}'
+    }
+  ])
+})

@@ -1,33 +1,41 @@
 'use strict'
 const core = require('@actions/core')
-import * as github from '@actions/github'
+const github = require('@actions/github')
 
 const { createIssue } = require('./create-issue')
-const { filterByColumn } = require('./filters')
-const { formatCards, saveMarkdown } = require('./markdown')
-const { getProjectBetaCards } = require('./project-cards')
+const { filterByColumnId, findColumnIdByName } = require('./filters')
+const { formatCards, generateMarkdown } = require('./markdown')
+const { getProjectBetaCards, getProjectSettings } = require('./project-cards')
 
 const run = async () => {
   core.info(`*** ACTION RUN - START ***`)
 
   try {
-    const column = core.getInput('column-id')
+    const columnName = core.getInput('column')
     const template = core.getInput('template')
     const organization = core.getInput('organization')
-    const projectNumber = core.getInput('project-beta-number')
+    const projectNumber = Number(core.getInput('project-beta-number'))
 
-    const { payload } = github.context
     const {
-      repository: { node_id: repositoryId }
-    } = payload
+      payload: {
+        repository: { node_id: repositoryId }
+      }
+    } = github.context
 
-    const cards = await getProjectBetaCards(
+    const cards = await getProjectBetaCards(organization, projectNumber)()
+    const projectSettings = await getProjectSettings(
       organization,
-      Number(projectNumber)
-    )()
-    const cardsFilteredByColumn = filterByColumn(cards, column)
+      projectNumber
+    )
+    const columnId = findColumnIdByName(columnName, projectSettings)
+
+    if (!columnId) {
+      throw new Error('columnId not found.')
+    }
+
+    const cardsFilteredByColumn = filterByColumnId(cards, columnId)
     const fCards = formatCards(cardsFilteredByColumn, template)
-    const markdown = saveMarkdown(fCards)
+    const markdown = generateMarkdown(fCards)
 
     await createIssue(markdown, repositoryId)
   } catch (err) {

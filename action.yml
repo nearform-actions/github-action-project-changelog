@@ -1,27 +1,26 @@
 
-name: 'Check linked issues'
+name: 'Project Changelog'
 
-description: 'Check if pull requests have their corresponding issues.'
+description: 'Creates issue for the corresponding project cards given a column name'
 
 branding:
   icon: "check-square"
   color: "green"
 
 inputs:
-  template:
-    description: Handlebars template to generate markdown
-    required: false
-    default: "{{title}} {{#if assignees }} by {{assignees}} {{/if}} {{#if number}} in [#{{number}}]({{url}}) {{/if}}"
   column:
-    description: Column to collect the changelogs
+    description: Column name to collect the changelogs
     required: true
-    default: "done"
   project-beta-number:
     description: Project beta number
     required: true
   organization:
     description: Organization name
     required: true
+  template:
+    description: Handlebar template to generate markdown
+    required: false
+    default: "{{title}} {{#if assignees }} by {{assignees}} {{/if}} {{#if number}} in [#{{number}}]({{url}}) {{/if}}"
 
 runs:
   using: 'node16'
