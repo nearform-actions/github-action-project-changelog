@@ -61,14 +61,14 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 ```
 
-When the workflow finishes, it will create an issue under the project containing all cards given the project column.
+The output of this action is an new issue containing all cards given the project column.
 
 You can also specify a `template` written in [handlebars](https://handlebarsjs.com/) as input to be used to create a card list in markdown.
 The following properties can be used to define a template:
-- url: issue url or pull request url
-- assignees: card assignees
-- number: issue number or pull request number
-- title: card title
+- `url`: issue url or pull request url
+- `assignees`: card assignees
+- `number`: issue number or pull request number
+- `title`: card title
 
 Example:
 ```yaml
