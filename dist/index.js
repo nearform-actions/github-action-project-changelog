@@ -17218,7 +17218,7 @@ const core = __nccwpck_require__(260)
 const github = __nccwpck_require__(1252)
 
 const { createIssue } = __nccwpck_require__(9478)
-const { filterByColumnId, findColumnIdByName } = __nccwpck_require__(8388)
+const { filterByColumnIds, findColumnIdByName } = __nccwpck_require__(8388)
 const { formatCards, generateMarkdown } = __nccwpck_require__(6755)
 const { getProjectBetaCards, getProjectSettings } = __nccwpck_require__(2587)
 
@@ -17226,7 +17226,7 @@ const run = async () => {
   core.info(`*** ACTION RUN - START ***`)
 
   try {
-    const columnName = core.getInput('column')
+    const columnNames = core.getInput('columns')
     const template = core.getInput('template')
     const organization = core.getInput('organization')
     const projectNumber = Number(core.getInput('project-beta-number'))
@@ -17242,14 +17242,14 @@ const run = async () => {
       organization,
       projectNumber
     )
-    const columnId = findColumnIdByName(columnName, projectSettings)
+    const columnIds = findColumnIdByName(columnNames, projectSettings)
 
-    if (!columnId) {
-      throw new Error('columnId not found.')
+    if (!columnIds) {
+      throw new Error('column Id not found.')
     }
 
-    const cardsFilteredByColumn = filterByColumnId(cards, columnId)
-    const fCards = formatCards(cardsFilteredByColumn, template)
+    const cardsFilteredByColumns = filterByColumnIds(cards, columnIds)
+    const fCards = formatCards(cardsFilteredByColumns, template)
     const markdown = generateMarkdown(fCards)
 
     await createIssue(markdown, repositoryId)
@@ -17305,31 +17305,36 @@ module.exports = {
 /***/ 8388:
 /***/ ((module) => {
 
-const filterByColumnId = (cards = [], columnId = '') => {
+const filterByColumnIds = (cards = [], columnIds = []) => {
+  console.log({
+    columnIds
+  })
   const cardsFiltered = cards.filter(({ node }) =>
-    node.fieldValues.nodes.some(item => columnId === item.value)
+    node.fieldValues.nodes.some(item => columnIds?.some(c => c === item.value))
   )
 
   return cardsFiltered
 }
 
-const findColumnIdByName = (columnName, projectSettings) => {
+const findColumnIdByName = (columnNames, projectSettings) => {
   const statusSetting = projectSettings?.find(({ name }) =>
     /status/i.test(name)
   )
 
   if (statusSetting) {
-    const column = JSON.parse(statusSetting?.settings)?.options?.find(
+    const columns = columnNames?.split(',')
+
+    const columnSettings = JSON.parse(statusSetting?.settings)?.options?.filter(
       ({ name }) =>
-        columnName?.trim()?.toLowerCase()?.includes(name?.trim().toLowerCase())
+        columns?.find(c => c?.trim()?.includes(name?.trim()?.toLowerCase()))
     )
 
-    return column?.id
+    return columnSettings?.map(c => c?.id)
   }
 }
 
 module.exports = {
-  filterByColumnId,
+  filterByColumnIds,
   findColumnIdByName
 }
 
