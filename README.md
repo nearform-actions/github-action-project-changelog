@@ -1,3 +1,6 @@
+![CI](https://github.com/nearform/github-action-project-changelog/actions/workflows/ci.yml/badge.svg)
+
+
 # github-action-project-changelog
 
 GitHub action to create an issue containing a list of project cards according with the project column name specified.
@@ -17,7 +20,7 @@ You need to create a GitHub application under your organization with the followi
 Copy the `Private key` and `App id` from the application created.
 
 Go to your repository and create two secrets:
-- `GH_APP_PRIVATE_KEY` 
+- `GH_APP_PRIVATE_KEY`
 - `GH_APP_ID`
 
 Install the application in your organization.
@@ -87,7 +90,7 @@ jobs:
           columns: #todo, in progress
           organization: #fake organization
           project-beta-number: #1
-          template: "{{title}} {{#if assignees }} by {{assignees}} {{/if}} {{#if number}} in [#{{number}}]({{url}}) {{/if}}" 
+          template: "{{title}} {{#if assignees }} by {{assignees}} {{/if}} {{#if number}} in [#{{number}}]({{url}}) {{/if}}"
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 ```
