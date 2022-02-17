@@ -1,0 +1,40 @@
+{
+  "name": "github-action-project-changelog",
+  "version": "1.0.0",
+  "description": "create an issue containing a list of project cards according with the project column name specified.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "ncc build index.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "tap",
+    "test:coverage-report": "tap --coverage-report=html",
+    "prepare": "husky install"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.0",
+    "@octokit/core": "^3.5.1",
+    "dotenv": "^16.0.0",
+    "handlebars": "^4.7.7",
+    "json2md": "^1.12.0",
+    "markdown-it": "^12.3.2"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^16.1.0",
+    "@commitlint/config-conventional": "^16.0.0",
+    "eslint": "^8.8.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.3.3",
+    "prettier": "^2.5.1",
+    "tap": "^15.1.6"
+  },
+  "lint-staged": {
+    "*.{js,jsx}": "eslint --cache --fix"
+  }
+}
