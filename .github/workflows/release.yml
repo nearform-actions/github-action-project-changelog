@@ -23,7 +23,3 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           semver: ${{ github.event.inputs.semver }}
-          sync-semver-tags: "true"
-          build-command: |
-            echo 'Runnig tests..'
-            npm ci
