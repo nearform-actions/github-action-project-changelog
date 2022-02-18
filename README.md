@@ -70,7 +70,7 @@ You can also configure this action by creating a [PAT ](https://docs.github.com/
 - admin:org -> read:org
 
 Go to your repository and create the following secret:
-- `GH_CHANGELOG_PAT_TOKEN`
+- `GH_CHANGELOG_PAT`
 
 Workflow configured with your PAT:
 ```yaml
@@ -93,7 +93,7 @@ jobs:
           organization: #fake organization
           project-beta-number: #1
         env:
-          GH_TOKEN: ${{ secrets.GH_CHANGELOG_PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_CHANGELOG_PAT }}
 ```
 
 ## Standard Usage
