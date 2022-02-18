@@ -157,7 +157,7 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 ```
 
-As alternative you can configure the workflow to get all inputs dinamically.
+As alternative you can configure the workflow to get all inputs dynamically.
 
 Example to get `columns` dynamically:
 ```yaml
