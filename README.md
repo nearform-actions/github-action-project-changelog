@@ -69,7 +69,7 @@ You can also configure this action by creating a [PAT ](https://docs.github.com/
 - repo (all)
 - admin:org -> read:org
 
-Go to your repository and create the following secret:
+Create the following secret in your repository
 - `GH_CHANGELOG_PAT`
 
 Workflow configured with your PAT:
@@ -128,7 +128,7 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 ```
 
-You can also specify a `template` input written in [handlebars](https://handlebarsjs.com/) as input to be used to create a card list in markdown.
+You can also specify a `template` input written in [handlebars](https://handlebarsjs.com/) to be used to create a card list in markdown.
 The following properties can be used to define a template:
 - `url`: issue url or pull request url
 - `assignees`: card assignees
@@ -157,7 +157,7 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 ```
 
-As alternative you can configure the workflow to get all inputs dinamically.
+As alternative you can configure the workflow to get all inputs dynamically.
 
 Example to get `columns` dynamically:
 ```yaml
