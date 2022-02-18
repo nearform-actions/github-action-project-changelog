@@ -69,7 +69,7 @@ You can also configure this action by creating a [PAT ](https://docs.github.com/
 - repo (all)
 - admin:org -> read:org
 
-Go to your repository and create the following secret:
+Create the following secret in your repository
 - `GH_CHANGELOG_PAT_TOKEN`
 
 Workflow configured with your PAT:
