@@ -33,6 +33,7 @@ Go to your repository and create two secrets:
 Install the application in your organization.
 
 This is necessary to generate the token that grants permissions to perform the actions.
+
 Workflow configured with Github app tokens:
 ```yaml
 name: changelog
