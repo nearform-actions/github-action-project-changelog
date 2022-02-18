@@ -1,11 +1,18 @@
 ![CI](https://github.com/nearform/github-action-project-changelog/actions/workflows/ci.yml/badge.svg)
 
-
 # github-action-project-changelog
 
 GitHub action to create an issue containing a list of project cards according with the project column name specified.
 
+## Input
+
+See [action.yml](action.yml).
+
 ## Settings
+
+You have two ways to configure this action.
+
+#### 1) Creating a Github application
 
 You need to create a GitHub application under your organization with the following permissions:
 
@@ -27,13 +34,70 @@ Install the application in your organization.
 
 This is necessary to generate the token that grants permissions to perform the actions.
 
-## Input
+Workflow configured with Github app tokens:
+```yaml
+name: changelog
+on:
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
+      - name: Generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.GH_APP_ID }}
+          private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+      - name: Creating an issue action
+        uses: nearform/github-action-project-changelog@v2
+        id: changelog
+        with:
+          columns: #todo, in progress
+          organization: #fake organization
+          project-beta-number: #1
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+```
 
-See [action.yml](action.yml).
+#### 2) Creating a PAT (personal access token)
+You can also configure this action by creating a [PAT ](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with the following permissions:
+- repo (all)
+- admin:org -> read:org
+
+Create the following secret in your repository
+- `GH_CHANGELOG_PAT`
+
+Workflow configured with your PAT:
+```yaml
+name: changelog
+on:
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
+      - name: Creating an issue action
+        uses: nearform/github-action-project-changelog@v2
+        id: changelog
+        with:
+          columns: #todo, in progress
+          organization: #fake organization
+          project-beta-number: #1
+        env:
+          GH_TOKEN: ${{ secrets.GH_CHANGELOG_PAT }}
+```
 
 ## Standard Usage
-
-Configure a workflow to run
+Configure the workflow:
 
 ```yaml
 name: changelog
@@ -54,7 +118,7 @@ jobs:
           app_id: ${{ secrets.GH_APP_ID }}
           private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
       - name: Creating an issue action
-        uses: nearform/github-action-project-changelog@v1
+        uses: nearform/github-action-project-changelog@v2
         id: changelog
         with:
           columns: #todo, in progress
@@ -64,9 +128,7 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 ```
 
-The output of this action is an new issue containing all cards given the project column.
-
-You can also specify a `template` written in [handlebars](https://handlebarsjs.com/) as input to be used to create a card list in markdown.
+You can also specify a `template` input written in [handlebars](https://handlebarsjs.com/) to be used to create a card list in markdown.
 The following properties can be used to define a template:
 - `url`: issue url or pull request url
 - `assignees`: card assignees
@@ -84,7 +146,7 @@ jobs:
     steps:
       ...
       - name: Creating an issue action
-        uses: nearform/github-action-project-changelog@v1
+        uses: nearform/github-action-project-changelog@v2
         id: changelog
         with:
           columns: #todo, in progress
@@ -95,7 +157,7 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 ```
 
-As alternative you can specify the workflow to get all inputs dinamically.
+As alternative you can configure the workflow to get all inputs dynamically.
 
 Example to get `columns` dynamically:
 ```yaml
@@ -113,7 +175,7 @@ jobs:
     steps:
       ...
       - name: Creating an issue action
-        uses: nearform/github-action-project-changelog@v1
+        uses: nearform/github-action-project-changelog@v2
         id: changelog
         with:
           organization: # organization name
@@ -123,5 +185,6 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 ```
 
-
+## Output
+The output of this action is an new issue containing all cards given the project column.
 
