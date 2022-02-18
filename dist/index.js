@@ -17306,9 +17306,6 @@ module.exports = {
 /***/ ((module) => {
 
 const filterByColumnIds = (cards = [], columnIds = []) => {
-  console.log({
-    columnIds
-  })
   const cardsFiltered = cards.filter(({ node }) =>
     node.fieldValues.nodes.some(item => columnIds?.some(c => c === item.value))
   )
@@ -17326,7 +17323,9 @@ const findColumnIdByName = (columnNames, projectSettings) => {
 
     const columnSettings = JSON.parse(statusSetting?.settings)?.options?.filter(
       ({ name }) =>
-        columns?.find(c => c?.trim()?.includes(name?.trim()?.toLowerCase()))
+        columns?.find(c =>
+          name?.trim()?.toLowerCase().includes(c?.trim()?.toLowerCase())
+        )
     )
 
     return columnSettings?.map(c => c?.id)
