@@ -128,7 +128,7 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 ```
 
-You can also specify a `template` input written in [handlebars](https://handlebarsjs.com/) as input to be used to create a card list in markdown.
+You can also specify a `template` input written in [handlebars](https://handlebarsjs.com/) to be used to create a card list in markdown.
 The following properties can be used to define a template:
 - `url`: issue url or pull request url
 - `assignees`: card assignees
