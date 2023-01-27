@@ -1,6 +1,7 @@
 'use strict'
 const core = require('@actions/core')
 const github = require('@actions/github')
+const toolkit = require('actions-toolkit')
 
 const { createIssue } = require('./create-issue')
 const { filterByColumnIds, findColumnIdByName } = require('./filters')
@@ -8,6 +9,9 @@ const { formatCards, generateMarkdown } = require('./markdown')
 const { getProjectBetaCards, getProjectSettings } = require('./project-cards')
 
 const run = async () => {
+  toolkit.logActionRefWarning()
+  toolkit.logRepoWarning()
+
   core.info(`*** ACTION RUN - START ***`)
 
   try {
