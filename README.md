@@ -42,6 +42,9 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      organization: read
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -80,6 +83,9 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      organization: read
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -106,6 +112,9 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      organization: read
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -143,6 +152,9 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      organization: read
     steps:
       ...
       - name: Creating an issue action
@@ -172,6 +184,9 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      organization: read
     steps:
       ...
       - name: Creating an issue action
