@@ -1,4 +1,4 @@
-![CI](https://github.com/nearform/github-action-project-changelog/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/nearform-actions/github-action-project-changelog/actions/workflows/ci.yml/badge.svg)
 
 # github-action-project-changelog
 
@@ -57,7 +57,7 @@ jobs:
           app_id: ${{ secrets.GH_APP_ID }}
           private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
       - name: Creating an issue action
-        uses: nearform/github-action-project-changelog@v1
+        uses: nearform-actions/github-action-project-changelog@v1
         id: changelog
         with:
           columns: #todo, in progress
@@ -92,7 +92,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
       - name: Creating an issue action
-        uses: nearform/github-action-project-changelog@v1
+        uses: nearform-actions/github-action-project-changelog@v1
         id: changelog
         with:
           columns: #todo, in progress
@@ -127,7 +127,7 @@ jobs:
           app_id: ${{ secrets.GH_APP_ID }}
           private_key: ${{ secrets.GH_APP_PRIVATE_KEY }}
       - name: Creating an issue action
-        uses: nearform/github-action-project-changelog@v1
+        uses: nearform-actions/github-action-project-changelog@v1
         id: changelog
         with:
           columns: #todo, in progress
@@ -158,7 +158,7 @@ jobs:
     steps:
       ...
       - name: Creating an issue action
-        uses: nearform/github-action-project-changelog@v1
+        uses: nearform-actions/github-action-project-changelog@v1
         id: changelog
         with:
           columns: #todo, in progress
@@ -190,7 +190,7 @@ jobs:
     steps:
       ...
       - name: Creating an issue action
-        uses: nearform/github-action-project-changelog@v1
+        uses: nearform-actions/github-action-project-changelog@v1
         id: changelog
         with:
           organization: # organization name
