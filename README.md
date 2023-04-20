@@ -4,25 +4,33 @@
 
 GitHub action to create an issue containing a list of project cards according with the project column name specified.
 
-## Input
+## Inputs
 
-See [action.yml](action.yml).
+| input               | required | default | description                              |
+|---------------------|----------|---------|------------------------------------------|
+| columns             | yes      |         | Project column names separated by comma. |
+| project-beta-number | yes      |         | Project beta number.                     |
+| organization        | yes      |         | Organization name.                       |
+| template            | no       | `"{{title}} {{#if assignees }} by {{assignees}} {{/if}} {{#if number}} in [#{{number}}]({{url}}) {{/if}}"` | Handlebar template to generate markdown. |
+
+## Output
+The output of this action is an new issue containing all cards given the project column.
 
 ## Settings
 
 You have two ways to configure this action.
 
-#### 1) Creating a Github application
+### 1) Creating a Github application
 
 You need to create a GitHub application under your organization with the following permissions:
 
-##### Repository Permissions:
-- Pull Requests (Read)
-- Issues (Read/Write)
+#### Repository Permissions:
+- `pull-requests: read`
+- `issues: read/write`
 
-##### Organization Permissions
-- Members (Read)
-- Projects (Read)
+#### Organization Permissions
+- `members: read`
+- `projects: read`
 
 Copy the `Private key` and `App id` from the application created.
 
@@ -30,9 +38,7 @@ Go to your repository and create two secrets:
 - `GH_APP_PRIVATE_KEY`
 - `GH_APP_ID`
 
-Install the application in your organization.
-
-This is necessary to generate the token that grants permissions to perform the actions.
+Install the application in your organization. This is necessary to generate the token that grants permissions to perform the actions.
 
 Workflow configured with Github app tokens:
 ```yaml
@@ -67,10 +73,10 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 ```
 
-#### 2) Creating a PAT (personal access token)
+### 2) Creating a PAT (personal access token)
 You can also configure this action by creating a [PAT ](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with the following permissions:
-- repo (all)
-- admin:org -> read:org
+- `repo: all`
+- `admin:org -> read:org`
 
 Create the following secret in your repository
 - `GH_CHANGELOG_PAT`
@@ -103,6 +109,7 @@ jobs:
 ```
 
 ## Standard Usage
+
 Configure the workflow:
 
 ```yaml
@@ -199,7 +206,3 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 ```
-
-## Output
-The output of this action is an new issue containing all cards given the project column.
-
