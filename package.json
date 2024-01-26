@@ -33,7 +33,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^9.0.6",
     "lint-staged": "^15.2.0",
-    "prettier": "^2.8.8",
+    "prettier": "^3.2.4",
     "tap": "^16.3.8"
   },
   "lint-staged": {
